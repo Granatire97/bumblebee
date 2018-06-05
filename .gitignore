@@ -108,3 +108,4 @@ gradle-app.setting
 #####################################################
 /*.yml
 /*.jks
+src/main/resources/*.yaml
