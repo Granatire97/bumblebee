@@ -1,10 +1,24 @@
 package com.example.demo;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 
@@ -30,7 +44,7 @@ public class ThresholdService {
 				+ "where poe.purchase_orders_event_id in ( "
 				+ "  select purchase_orders_event_id "
 				+ "  from purchase_orders_event "
-				+ "  where created_dttm  >= sysdate-1/24 "
+				+ "  where created_dttm  >= sysdate-2 "
 				+ "  and field_name = 'LINE ITEM STATUS' "
 				+ "  and new_value in ('Allocation Failed') and "
 				+ "  old_value in ('Sourced') "
@@ -51,7 +65,7 @@ public class ThresholdService {
 				+ "where poe.purchase_orders_event_id in ( "
 				+ "  select purchase_orders_event_id "
 				+ "  from purchase_orders_event "
-				+ "  where created_dttm >= sysdate-1/24 "
+				+ "  where created_dttm >= sysdate-2 "
 				+ "  and field_name = 'LINE ITEM STATUS' "
 				+ "and "
 				+ "  old_value in ('Created') "
@@ -72,11 +86,35 @@ public class ThresholdService {
 	}
 	
 	public boolean surpassesThreshold(double allocationFailures){
-		
 		return allocationFailures >= 0.5;
 	}
 	
-	
-	
+	@Scheduled(fixedRate = 3600000)
+	private void monitorAllocationFailures() {
+		double allocationFailures = getAllocationFailures();
+		boolean issue = surpassesThreshold(allocationFailures);
+		if(issue)
+			sendToXMatters(allocationFailures, "api-endpoint");
+		
+	}
+	private void sendToXMatters(double metric, String url_name) {
+		
+		String payload = "{" +
+			  "\"properties\": {" +
+			    "\"Allocation Failure Percentage\": \"" + metric + "\"" +
+			  "}}";
+        StringEntity entity = new StringEntity(payload,
+                ContentType.APPLICATION_JSON);
 
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        HttpPost request = new HttpPost(url_name);
+        request.setEntity(entity);
+        
+        try {
+        HttpResponse response = httpClient.execute(request);
+        System.out.println(response.getStatusLine().getStatusCode());
+        } catch (Exception e) {}
+		
+	}
+			
 }
