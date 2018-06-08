@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.dcsg.fulfillment.threshold;
 
 import org.apache.http.client.HttpClient;
 import org.junit.Before;
@@ -13,6 +13,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.dcsg.fulfillment.threshold.ThresholdService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = "scheduling.enabled=false")
