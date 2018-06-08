@@ -1,6 +1,5 @@
 package com.dcsg.fulfillment.threshold;
 
-import org.apache.http.client.HttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -22,7 +21,6 @@ public class ThresholdServiceTests {
 	
 	private @Autowired ThresholdService thresholdService;
 	double allocationThreshold;
-	HttpClient httpClient;
 	
 	@Before
 	public void setup() {
