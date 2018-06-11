@@ -1,7 +1,11 @@
 package com.dcsg.fulfillment.threshold;
 
+
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -18,6 +22,16 @@ public class ThresholdServiceTests {
 	
 	private @Autowired ThresholdService thresholdService;
 	private @Autowired ThresholdConfiguration thresholdConfig;
+	double allocationThreshold;
+	
+	@Before
+	public void setup() {
+		try {
+			Field allocThreshold = ThresholdService.class.getDeclaredField("allocationThreshold");
+			allocThreshold.setAccessible(true);
+			allocationThreshold = (double) allocThreshold.get(thresholdService);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
+	}
 	
 	@Test
 	public void testAllocationFailuresBelowThreshold() {
