@@ -1,11 +1,7 @@
 package com.dcsg.fulfillment.threshold;
 
-import org.apache.http.client.HttpClient;
-import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -21,31 +17,24 @@ import com.dcsg.fulfillment.threshold.ThresholdService;
 public class ThresholdServiceTests {
 	
 	private @Autowired ThresholdService thresholdService;
-	double allocationThreshold;
-	HttpClient httpClient;
-	
-	@Before
-	public void setup() {
-		try {
-			Field allocThreshold = ThresholdService.class.getDeclaredField("allocationThreshold");
-			allocThreshold.setAccessible(true);
-			allocationThreshold = (double) allocThreshold.get(thresholdService);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
-	}
+	private @Autowired ThresholdConfiguration thresholdConfig;
 	
 	@Test
-	public void testBelowThreshold() {
-		assertFalse(thresholdService.surpassesThreshold(allocationThreshold - 0.1));
+	public void testAllocationFailuresBelowThreshold() {
+		assertFalse(thresholdService.surpassesAllocationThreshold(thresholdConfig.getAllocationThreshold() - 0.1, 
+				thresholdConfig.getAllocationThreshold()));
 	}
 	
 	@Test
 	public void testAboveThreshold() {
-		assertTrue(thresholdService.surpassesThreshold(allocationThreshold + 0.1));
+		assertTrue(thresholdService.surpassesAllocationThreshold(thresholdConfig.getAllocationThreshold() + 0.1, 
+				thresholdConfig.getAllocationThreshold()));
 	}
 	
 	@Test
 	public void testAtThreshold() {
-		assertTrue(thresholdService.surpassesThreshold(allocationThreshold));
+		assertTrue(thresholdService.surpassesPickDeclineThreshold(thresholdConfig.getPickDeclineThreshold(), 
+				thresholdConfig.getPickDeclineThreshold()));
 	}
 	
 	@Test

@@ -33,4 +33,5 @@ dependencies {
     compile('org.apache.httpcomponents:httpclient:4.5.5')
     compile files("libs/ojdbc7.jar")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+	compile group: 'org.projectlombok', name: 'lombok-maven', version: '1.16.22.0'
 }

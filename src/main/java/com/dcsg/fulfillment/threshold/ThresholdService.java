@@ -18,21 +18,24 @@ import org.springframework.stereotype.Service;
 public class ThresholdService {
     
 	private @Autowired ThresholdRepository repo;
-	
-    @Value("${x-matters.allocation}")
-    private String xMattersAllocationURL;
-    @Value("${metrics.allocation.name}")
-    private String allocationName;
-    @Value("${metrics.allocation.threshold}")
-    private double allocationThreshold;
+	private @Autowired ThresholdConfiguration config;
 	
     public double getAllocationFailures() {
 		return repo.getAllocationFailures();
 	}
     
-	public boolean surpassesThreshold(double allocationFailures){
-		return allocationFailures >= allocationThreshold;
+    public double getPickDeclineFailures() {
+		return repo.getPickDeclineFailures();
 	}
+	
+	public boolean surpassesAllocationThreshold(double allocationFailures, double allocationThreshold){
+		return allocationFailures >= allocationThreshold;
+	} 
+	
+	public boolean surpassesPickDeclineThreshold(double pickDeclineFailures, double pickDeclineThreshold){
+		return pickDeclineFailures >= pickDeclineThreshold;
+	} 
+	
 	
 	private String makeDataString(String metricName, double metric) {
 		String data = "{" +
@@ -63,9 +66,18 @@ public class ThresholdService {
 	@Scheduled(fixedRate = 3600000)
 	private void monitorAllocationFailures() {
 		double allocationFailures = getAllocationFailures();
-		boolean thresholdSurpassed = surpassesThreshold(allocationFailures);
-		if(thresholdSurpassed) 
-			sendToXMatters(allocationName, allocationFailures, xMattersAllocationURL);
+		boolean thresholdSurpassed = surpassesAllocationThreshold(allocationFailures, config.getAllocationThreshold());
+		if (thresholdSurpassed)
+			sendToXMatters(config.getAllocationName(), allocationFailures, config.getXMattersAllocationURL());
 	}
+	
+	@Scheduled(fixedRate = 3600000)
+	private void monitorPickDeclineFailures() {
+		double pickDeclineFailures = getPickDeclineFailures();
+		boolean thresholdSurpassed = surpassesPickDeclineThreshold(pickDeclineFailures, config.getPickDeclineThreshold());
+		if(thresholdSurpassed) 
+			sendToXMatters(config.getPickDeclineName(), pickDeclineFailures, config.getXMattersPickDeclineURL());
+	}
+	
 			
 }

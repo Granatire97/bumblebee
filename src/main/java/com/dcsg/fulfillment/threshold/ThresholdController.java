@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class ThresholdController {
 
 	private @Autowired ThresholdService thresholdService;
+	private @Autowired ThresholdConfiguration thresholdConfig;
 	
 	@RequestMapping(path = "/getAllocationFailures")
 	public HashMap<String,String> getAllocationFailures() throws IOException{
 		
 		Double allocationFailures = thresholdService.getAllocationFailures();
-		String priority = thresholdService.surpassesThreshold(allocationFailures) ? "BAD":"GOOD";
+		Double allocationThreshold = thresholdConfig.getAllocationThreshold();
+		String priority = thresholdService.surpassesAllocationThreshold(allocationFailures, allocationThreshold) ? "BAD":"GOOD";
 		HashMap<String, String> response = new HashMap<String, String>();
 		response.put("priority", priority);
 		response.put("Failure Percentage", allocationFailures.toString());
