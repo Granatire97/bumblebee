@@ -71,8 +71,7 @@ public class ThresholdRepository {
 		Double pickDeclineFailures = 0.0;
 		String sqlQuery = ""
 						+ "Select /*+ parallel */ "
-						+ "f.facility_Type_Bits "
-						+ ",((sum(oli.orig_order_qty)-(sum(oli.order_qty)))/sum(oli.orig_order_qty)) *100 as decline_percent "
+						+ "((sum(oli.orig_order_qty)-(sum(oli.order_qty)))/sum(oli.orig_order_qty)) *100 as decline_percent "
 						+ "from "
 						+ "  order_line_item oli "
 						+ "  join orders o on o.order_id = oli.order_id "
