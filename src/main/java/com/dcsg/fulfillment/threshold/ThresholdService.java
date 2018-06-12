@@ -1,6 +1,7 @@
 package com.dcsg.fulfillment.threshold;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.HttpResponse; 
 import org.apache.http.client.HttpClient;
@@ -26,6 +27,10 @@ public class ThresholdService {
     public double getPickDeclineFailures() {
 		return repo.getPickDeclineFailures();
 	}
+    
+    public List<String> getDriftAnalysis(){
+    	return repo.getDriftAnalysis();
+    }
 	
 	public boolean surpassesAllocationThreshold(double allocationFailures, double allocationThreshold){
 		return allocationFailures >= allocationThreshold;
@@ -41,6 +46,16 @@ public class ThresholdService {
 				  "\"properties\": {" +
 				    "\"" + metricName + "\": \"" + metric + "\"" +
 				  "}}";
+		System.out.println(data);
+		return data;
+	}
+	
+	private String makeDriftAnalysisString(String metricName, List<String> driftData) {
+		String data = "{" +
+				  "\"properties\": {" +
+				    "\"" + metricName + "\": \"" + driftData + "\"" +
+				  "}}";
+		System.out.println(data);
 		return data;
 	}
 	
@@ -62,6 +77,26 @@ public class ThresholdService {
         return -1;
 	}
 	
+private int sendDriftAnalysisToXMatters(String metricName, List<String> driftData, String url_name) {
+		
+		String payload = makeDriftAnalysisString(metricName, driftData);
+        StringEntity entity = new StringEntity(payload,
+                ContentType.APPLICATION_JSON);
+
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        HttpPost request = new HttpPost(url_name);
+        request.setEntity(entity);     
+        
+        HttpResponse response;
+		try {
+			response = httpClient.execute(request);
+			return response.getStatusLine().getStatusCode();
+		} catch (IOException e) {}   
+        return -1;
+	}
+	
+	
+	
 	@Scheduled(fixedRate = 3600000)
 	private void monitorAllocationFailures() {
 		double allocationFailures = getAllocationFailures();
@@ -77,6 +112,13 @@ public class ThresholdService {
 		if(thresholdSurpassed) 
 			sendToXMatters(config.getPickDeclineName(), pickDeclineFailures, config.getXMattersPickDeclineURL());
 	}
+	
+	@Scheduled(fixedRate = 3600000) // cron = "0 0 8/3 ? * * "
+	private void monitorDriftAnalysis() {
+		List<String> driftData = getDriftAnalysis();
+		sendDriftAnalysisToXMatters(config.getDriftAnalysisName(), driftData, config.getXMattersDriftAnalysisURL());
+	}
+	
 	
 			
 }

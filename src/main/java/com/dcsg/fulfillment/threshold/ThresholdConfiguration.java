@@ -8,7 +8,6 @@ public class ThresholdConfiguration {
 
 	@Value("${x-matters.allocation}")
     private String xMattersAllocationURL;
-	
     @Value("${metrics.allocation.name}")
     private String allocationName;
     @Value("${metrics.allocation.threshold}")
@@ -20,6 +19,11 @@ public class ThresholdConfiguration {
     private String pickDeclineName;
     @Value("${metrics.pickDecline.threshold}")
     private double pickDeclineThreshold;
+    
+    @Value("${x-matters.driftAnalysis}")
+    private String xMattersDriftAnalysisURL;
+    @Value("${metrics.driftAnalysis.name}")
+    private String driftAnalysisName;
     
     public String getXMattersAllocationURL() {
 		return xMattersAllocationURL;
@@ -45,6 +49,13 @@ public class ThresholdConfiguration {
   		return pickDeclineThreshold;
   	}
 	
+    public String getXMattersDriftAnalysisURL() {
+		return xMattersDriftAnalysisURL;
+	}
+    
+    public String getDriftAnalysisName() {
+  		return driftAnalysisName;
+  	}
 	
 	
 }
