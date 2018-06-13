@@ -20,18 +20,24 @@ public class ThresholdService {
 	private @Autowired ThresholdRepository repo;
 	private @Autowired ThresholdConfiguration config;
 	
-    public double getAllocationFailures() {
+	
+    public double getAllocationFailures() throws IOException {
 		return repo.getAllocationFailures();
 	}
     
-    public double getPickDeclineFailures() {
+    public double getPickDeclineFailures() throws IOException {
 		return repo.getPickDeclineFailures();
 	}
     
-    public List<String> getDriftAnalysis(){
-    	return repo.getDriftAnalysis();
+    
+    public String getDriftAnalysis() throws IOException{
+    	repo.getDriftAnalysis();
+    	String dataAsString= repo.getDriftAnalysisData();
+    	System.out.println(dataAsString);
+    	return dataAsString;
     }
 	
+    
 	public boolean surpassesAllocationThreshold(double allocationFailures, double allocationThreshold){
 		return allocationFailures >= allocationThreshold;
 	} 
@@ -46,16 +52,14 @@ public class ThresholdService {
 				  "\"properties\": {" +
 				    "\"" + metricName + "\": \"" + metric + "\"" +
 				  "}}";
-		System.out.println(data);
 		return data;
 	}
 	
-	private String makeDriftAnalysisString(String metricName, List<String> driftData) {
+	private String makeDriftAnalysisString(String metricName, String driftData) {
 		String data = "{" +
 				  "\"properties\": {" +
 				    "\"" + metricName + "\": \"" + driftData + "\"" +
 				  "}}";
-		System.out.println(data);
 		return data;
 	}
 	
@@ -77,7 +81,7 @@ public class ThresholdService {
         return -1;
 	}
 	
-private int sendDriftAnalysisToXMatters(String metricName, List<String> driftData, String url_name) {
+private int sendDriftAnalysisToXMatters(String metricName, String driftData, String url_name) {
 		
 		String payload = makeDriftAnalysisString(metricName, driftData);
         StringEntity entity = new StringEntity(payload,
@@ -98,7 +102,7 @@ private int sendDriftAnalysisToXMatters(String metricName, List<String> driftDat
 	
 	
 	@Scheduled(fixedRate = 3600000)
-	private void monitorAllocationFailures() {
+	private void monitorAllocationFailures() throws IOException {
 		double allocationFailures = getAllocationFailures();
 		boolean thresholdSurpassed = surpassesAllocationThreshold(allocationFailures, config.getAllocationThreshold());
 		if (thresholdSurpassed)
@@ -106,7 +110,7 @@ private int sendDriftAnalysisToXMatters(String metricName, List<String> driftDat
 	}
 	
 	@Scheduled(fixedRate = 3600000)
-	private void monitorPickDeclineFailures() {
+	private void monitorPickDeclineFailures() throws IOException {
 		double pickDeclineFailures = getPickDeclineFailures();
 		boolean thresholdSurpassed = surpassesPickDeclineThreshold(pickDeclineFailures, config.getPickDeclineThreshold());
 		if(thresholdSurpassed) 
@@ -114,11 +118,10 @@ private int sendDriftAnalysisToXMatters(String metricName, List<String> driftDat
 	}
 	
 	@Scheduled(fixedRate = 3600000) // cron = "0 0 8/3 ? * * "
-	private void monitorDriftAnalysis() {
-		List<String> driftData = getDriftAnalysis();
+	private void monitorDriftAnalysis() throws IOException {
+		String driftData = getDriftAnalysis();
 		sendDriftAnalysisToXMatters(config.getDriftAnalysisName(), driftData, config.getXMattersDriftAnalysisURL());
 	}
-	
 	
 			
 }
