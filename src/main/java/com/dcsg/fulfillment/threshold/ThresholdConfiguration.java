@@ -21,6 +21,13 @@ public class ThresholdConfiguration {
     @Value("${metrics.pickDecline.threshold}")
     private double pickDeclineThreshold;
     
+    @Value("${x-matters.creationFailure}")
+    private String xMattersCreationFailureURL;
+    @Value("${metrics.creationFailure.name}")
+    private String creationFailureName;
+    @Value("${metrics.creationFailure.threshold}")
+    private double creationFailureThreshold;
+    
     public String getXMattersAllocationURL() {
 		return xMattersAllocationURL;
 	}
@@ -43,6 +50,17 @@ public class ThresholdConfiguration {
     
     public double getPickDeclineThreshold() {
   		return pickDeclineThreshold;
+  	}
+    public String getXMattersCreationFailureURL() {
+		return xMattersCreationFailureURL;
+	}
+    
+    public String getCreationFailureName() {
+  		return creationFailureName;
+  	}
+    
+    public double getCreationFailureThreshold() {
+  		return creationFailureThreshold;
   	}
 	
 	

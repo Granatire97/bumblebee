@@ -25,7 +25,7 @@ public class ThresholdRepository {
 				+ "where poe.purchase_orders_event_id in ( "
 				+ "  select purchase_orders_event_id "
 				+ "  from purchase_orders_event "
-				+ "  where created_dttm  >= sysdate-7 "
+				+ "  where created_dttm  >= sysdate-1/24 "
 				+ "  and field_name = 'LINE ITEM STATUS' "
 				+ "  and new_value in ('Allocation Failed') and "
 				+ "  old_value in ('Sourced') "
@@ -46,7 +46,7 @@ public class ThresholdRepository {
 				+ "where poe.purchase_orders_event_id in ( "
 				+ "  select purchase_orders_event_id "
 				+ "  from purchase_orders_event "
-				+ "  where created_dttm >= sysdate-7 "
+				+ "  where created_dttm >= sysdate-1/24 "
 				+ "  and field_name = 'LINE ITEM STATUS' "
 				+ "and "
 				+ "  old_value in ('Created') "
@@ -93,6 +93,34 @@ public class ThresholdRepository {
 			pickDeclineFailures = jdbcTemplate.queryForObject(sqlQuery, Double.class);
 		} catch (EmptyResultDataAccessException e) {}
 		return pickDeclineFailures;
+	}
+	public Double getCreationFailures() {
+
+		Double creationFailures = 0.0;
+		String sqlQuery = ""
+				+ "SELECT /*+ parallel */ "
+				+ "AVG(cast(sysdate AS DATE) - cast(po.purchase_orders_date_dttm AS DATE))*24*60 AS calc "
+				+ "FROM "
+				+ "purchase_orders po "
+				+ "WHERE "
+				+ "po.created_dttm >= trunc(sysdate)"
+				+ "AND EXISTS ( "
+				+ "                     SELECT NULL "
+				+ "                     FROM purchase_orders_line_item poli "
+				+ "                     WHERE poli.purchase_orders_id = po.purchase_orders_id "
+				+ "                     AND poli.dsg_ship_via = 'BOPS')"
+				+ "AND not EXISTS ( "
+				+ "                     SELECT NULL "
+				+ "                     FROM orders o "
+				+ "                     WHERE o.purchase_order_id = po.purchase_orders_id "
+				+ "                     ) --doesn't exist in the ORDERS table, i.e. not yet DO created "
+				+ "AND po.IS_PURCHASE_ORDERS_CONFIRMED = 1 "
+				+ "AND po.purchase_orders_status < 492  ";
+
+		try {
+			creationFailures = jdbcTemplate.queryForObject(sqlQuery, Double.class);
+		} catch (EmptyResultDataAccessException e) {}
+		return creationFailures;
 	}
 
 

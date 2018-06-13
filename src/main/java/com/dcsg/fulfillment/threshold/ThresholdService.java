@@ -26,7 +26,11 @@ public class ThresholdService {
     
     public double getPickDeclineFailures() {
 		return repo.getPickDeclineFailures();
-	}
+	} 
+    
+    public double getCreationFailure() {
+    	return repo.getCreationFailures();
+    }
 	
 	public boolean surpassesAllocationThreshold(double allocationFailures, double allocationThreshold){
 		return allocationFailures >= allocationThreshold;
@@ -36,12 +40,17 @@ public class ThresholdService {
 		return pickDeclineFailures >= pickDeclineThreshold;
 	} 
 	
+	public boolean supassesCreationFailureThreshold(double creationFailures, double creationFailureThreshold) {
+		return creationFailures >= creationFailureThreshold;
+	}
+	
 	
 	private String makeDataString(String metricName, double metric) {
 		String data = "{" +
 				  "\"properties\": {" +
 				    "\"" + metricName + "\": \"" + metric + "\"" +
 				  "}}";
+		System.out.println(data);
 		return data;
 	}
 	
@@ -77,6 +86,14 @@ public class ThresholdService {
 		boolean thresholdSurpassed = surpassesPickDeclineThreshold(pickDeclineFailures, config.getPickDeclineThreshold());
 		if(thresholdSurpassed) 
 			sendToXMatters(config.getPickDeclineName(), pickDeclineFailures, config.getXMattersPickDeclineURL());
+	}
+	
+	@Scheduled(fixedRate = 3600000)
+	private void monitorCreationFailures() {
+		double creationFailures = getCreationFailure();
+		boolean thresholdSurpassed = supassesCreationFailureThreshold(creationFailures, config.getCreationFailureThreshold());
+		if(thresholdSurpassed) 
+			sendToXMatters(config.getCreationFailureName(), creationFailures, config.getXMattersCreationFailureURL());
 	}
 	
 			
