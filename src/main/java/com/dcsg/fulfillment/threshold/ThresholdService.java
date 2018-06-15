@@ -152,7 +152,7 @@ private int sendDriftAnalysisToXMatters(String metricName, List<List<String>> dr
 			sendToXMatters(config.getPickDeclineName(), pickDeclineFailures, config.getXMattersPickDeclineURL());
 	}
 	
-	@Scheduled(fixedRate = 3600000) // cron = "0 0 8/3 ? * * "
+	@Scheduled(cron = "0 0 8/3 ? * * ")
 	private void monitorDriftAnalysis() throws IOException {
 		List<List<String>> driftAnalysis = getDriftAnalysis();
 		sendDriftAnalysisToXMatters(config.getDriftAnalysisName(), driftAnalysis, config.getXMattersDriftAnalysisURL());
