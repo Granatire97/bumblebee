@@ -298,6 +298,7 @@ from (
   )
   where atc_quantity <> abi_quantity
 )
+where drift_type <> 'No Drift'
 group by drift_type, partner, view_name
 order by case drift_type when 'No Drift' then 'Z' when 'Not Analyzed' then 'Y' else drift_type end, partner, view_name desc
  

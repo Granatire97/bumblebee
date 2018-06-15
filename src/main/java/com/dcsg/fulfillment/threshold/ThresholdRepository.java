@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +22,6 @@ public class ThresholdRepository {
 	
 	private @Autowired JdbcTemplate jdbcTemplate;
 	Map<String,String> queries = new HashMap<String, String>();
-	private String driftAnalysisData;
 	
 	private void loadQuery(String queryName) throws IOException {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -39,11 +38,6 @@ public class ThresholdRepository {
 		
 		queries.put(queryName, sb.toString());
 	}
-	
-	public String getDriftAnalysisData() {
-		return driftAnalysisData;
-	}
-	
 	
 	
 	public Double getAllocationFailures() throws IOException {
@@ -70,34 +64,34 @@ public class ThresholdRepository {
 		return pickDeclineFailures;
 	}
 
-	public List<String> getDriftAnalysis() throws IOException{
+	public List<List<String>> getDriftAnalysis() throws IOException{
 		
-		List<String> data = null;
+		List<List<String>> data = null;
 		loadQuery("DriftAnalysisQuery");
 		
 		try {
 
-			data = jdbcTemplate.query(queries.get("DriftAnalysisQuery"), new RowMapper<String>(){
-										public String mapRow(ResultSet rs, int rowNum)
+			data = jdbcTemplate.query(queries.get("DriftAnalysisQuery"), new RowMapper<List<String>>(){
+										public List<String> mapRow(ResultSet rs, int rowNum)
 																	throws SQLException {
-											StringBuilder data = new StringBuilder();
-											data.append(rs.getString(1));
-											data.append(rs.getString(2));
-											data.append(rs.getString(3));
-											data.append(rs.getString(4));
-											data.append(rs.getString(5));
-											System.out.println(data);
-											driftAnalysisData = data.toString();
+											
+											List<String> driftAnalysisData = new ArrayList<String>();	
+											driftAnalysisData.add(rs.getString(1));
+											driftAnalysisData.add(rs.getString(2));
+											driftAnalysisData.add(rs.getString(3));
+											driftAnalysisData.add(rs.getString(4));
+											driftAnalysisData.add(rs.getString(5));
 											return driftAnalysisData;
+										
 										}
 								
 			});
 		} catch (EmptyResultDataAccessException e) {}
+
+		System.out.println(data);
 		return data;
 	}
 	
-	//System.out.print(data);
-
 	
-
+	
 }

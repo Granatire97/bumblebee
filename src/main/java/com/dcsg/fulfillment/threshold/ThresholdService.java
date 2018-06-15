@@ -21,6 +21,38 @@ public class ThresholdService {
 	private @Autowired ThresholdConfiguration config;
 	
 	
+	public String makeHTMLTable(List<List<String>> driftAnalysisData) throws IOException {
+		String driftSendToXMatters;
+		
+		StringBuilder driftAnalysisTable = new StringBuilder();
+		driftAnalysisTable.append(
+		           "<table>" +
+		           "<tr>" +
+		           "<th>Drift Type</th>" +
+		           "<th>Partner</th>" +
+		           "<th>Facility Count</th>" +
+		           "<th>View Name</th>" +
+		           "<th>Row Count</th>" +
+		           "</tr>");
+		int c = 0; 
+		for (int x = 0; x < driftAnalysisData.size(); x++){
+			driftAnalysisTable.append("<tr>");
+			for  (int  y = 0; y < driftAnalysisData.get(0).size(); y++) {
+				driftAnalysisTable.append("<td>")
+				.append(driftAnalysisData.get(x).get(y))
+				.append("</td>");
+				c++;
+				
+			}
+				driftAnalysisTable.append("</tr>");
+		}
+		System.out.println(c);
+		
+		driftAnalysisTable.append("</table>");
+		driftSendToXMatters = driftAnalysisTable.toString();
+		return driftSendToXMatters;
+	}
+	
     public double getAllocationFailures() throws IOException {
 		return repo.getAllocationFailures();
 	}
@@ -29,14 +61,10 @@ public class ThresholdService {
 		return repo.getPickDeclineFailures();
 	}
     
-    
-    public String getDriftAnalysis() throws IOException{
-    	repo.getDriftAnalysis();
-    	String dataAsString= repo.getDriftAnalysisData();
-    	System.out.println(dataAsString);
-    	return dataAsString;
-    }
-	
+    public List<List<String>> getDriftAnalysis() throws IOException {
+		return repo.getDriftAnalysis();
+	}
+ 
     
 	public boolean surpassesAllocationThreshold(double allocationFailures, double allocationThreshold){
 		return allocationFailures >= allocationThreshold;
@@ -55,10 +83,11 @@ public class ThresholdService {
 		return data;
 	}
 	
-	private String makeDriftAnalysisString(String metricName, String driftData) {
+	private String makeDriftAnalysisString(String metricName, List<List<String>> dataFromQuery) throws IOException {
+		String driftAnalysisAsTable = makeHTMLTable(dataFromQuery);
 		String data = "{" +
 				  "\"properties\": {" +
-				    "\"" + metricName + "\": \"" + driftData + "\"" +
+				    "\"" + metricName + "\": \"" + driftAnalysisAsTable + "\"" +
 				  "}}";
 		return data;
 	}
@@ -81,7 +110,7 @@ public class ThresholdService {
         return -1;
 	}
 	
-private int sendDriftAnalysisToXMatters(String metricName, String driftData, String url_name) {
+private int sendDriftAnalysisToXMatters(String metricName, List<List<String>> driftData, String url_name) throws IOException {
 		
 		String payload = makeDriftAnalysisString(metricName, driftData);
         StringEntity entity = new StringEntity(payload,
@@ -119,8 +148,8 @@ private int sendDriftAnalysisToXMatters(String metricName, String driftData, Str
 	
 	@Scheduled(fixedRate = 3600000) // cron = "0 0 8/3 ? * * "
 	private void monitorDriftAnalysis() throws IOException {
-		String driftData = getDriftAnalysis();
-		sendDriftAnalysisToXMatters(config.getDriftAnalysisName(), driftData, config.getXMattersDriftAnalysisURL());
+		List<List<String>> driftAnalysis = getDriftAnalysis();
+		sendDriftAnalysisToXMatters(config.getDriftAnalysisName(), driftAnalysis, config.getXMattersDriftAnalysisURL());
 	}
 	
 			
