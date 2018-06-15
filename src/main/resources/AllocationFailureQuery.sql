@@ -10,7 +10,7 @@ from purchase_orders_event poe join purchase_orders_line_item poli on poli.purch
 where poe.purchase_orders_event_id in (
   select purchase_orders_event_id
   from purchase_orders_event
-  where created_dttm  >= sysdate-9 --adjust as needed to incorporate more than the previous hour
+  where created_dttm  >= sysdate-1/24 --adjust as needed to incorporate more than the previous hour
   and field_name = 'LINE ITEM STATUS'
   and new_value in ('Allocation Failed') and
   old_value in ('Sourced')
@@ -32,7 +32,7 @@ from purchase_orders_event poe join purchase_orders_line_item poli on poli.purch
 where poe.purchase_orders_event_id in (
   select purchase_orders_event_id
   from purchase_orders_event
-  where created_dttm >= sysdate-9 --adjust as needed to incorporate more than the previous hour
+  where created_dttm >= sysdate-1/24 --adjust as needed to incorporate more than the previous hour
   and field_name = 'LINE ITEM STATUS'
 and
   old_value in ('Created')

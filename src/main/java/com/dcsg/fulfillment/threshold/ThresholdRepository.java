@@ -88,9 +88,22 @@ public class ThresholdRepository {
 			});
 		} catch (EmptyResultDataAccessException e) {}
 
-		System.out.println(data);
 		return data;
 	}
+	
+	public Double getCreationFailures() throws IOException {
+
+		Double creationFailures = 0.0;
+	
+		loadQuery("DOCreationFailureQuery");
+		
+		try {
+			creationFailures = jdbcTemplate.queryForObject(queries.get("DOCreationFailureQuery"), Double.class);
+		} catch (EmptyResultDataAccessException e) {}
+		return creationFailures;
+	}
+	
+	
 	
 	
 	

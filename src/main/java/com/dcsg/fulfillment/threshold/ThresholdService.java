@@ -34,19 +34,16 @@ public class ThresholdService {
 		           "<th>View Name</th>" +
 		           "<th>Row Count</th>" +
 		           "</tr>");
-		int c = 0; 
+
 		for (int x = 0; x < driftAnalysisData.size(); x++){
 			driftAnalysisTable.append("<tr>");
 			for  (int  y = 0; y < driftAnalysisData.get(0).size(); y++) {
 				driftAnalysisTable.append("<td>")
 				.append(driftAnalysisData.get(x).get(y))
 				.append("</td>");
-				c++;
-				
 			}
 				driftAnalysisTable.append("</tr>");
 		}
-		System.out.println(c);
 		
 		driftAnalysisTable.append("</table>");
 		driftSendToXMatters = driftAnalysisTable.toString();
@@ -64,6 +61,10 @@ public class ThresholdService {
     public List<List<String>> getDriftAnalysis() throws IOException {
 		return repo.getDriftAnalysis();
 	}
+    
+    public double getCreationFailure() throws IOException {
+    	return repo.getCreationFailures();
+    }
  
     
 	public boolean surpassesAllocationThreshold(double allocationFailures, double allocationThreshold){
@@ -73,6 +74,10 @@ public class ThresholdService {
 	public boolean surpassesPickDeclineThreshold(double pickDeclineFailures, double pickDeclineThreshold){
 		return pickDeclineFailures >= pickDeclineThreshold;
 	} 
+	
+	public boolean supassesCreationFailureThreshold(double creationFailures, double creationFailureThreshold) {
+		return creationFailures >= creationFailureThreshold;
+	}
 	
 	
 	private String makeDataString(String metricName, double metric) {
@@ -151,6 +156,16 @@ private int sendDriftAnalysisToXMatters(String metricName, List<List<String>> dr
 		List<List<String>> driftAnalysis = getDriftAnalysis();
 		sendDriftAnalysisToXMatters(config.getDriftAnalysisName(), driftAnalysis, config.getXMattersDriftAnalysisURL());
 	}
+	
+	@Scheduled(fixedRate = 3600000)
+	private void monitorCreationFailures() throws IOException {
+		double creationFailures = getCreationFailure();
+		boolean thresholdSurpassed = supassesCreationFailureThreshold(creationFailures, config.getCreationFailureThreshold());
+		if(thresholdSurpassed) 
+			sendToXMatters(config.getCreationFailureName(), creationFailures, config.getXMattersCreationFailureURL());
+	}
+	
+	
 	
 			
 }

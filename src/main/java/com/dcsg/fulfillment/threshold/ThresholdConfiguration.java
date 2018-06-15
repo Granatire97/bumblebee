@@ -25,6 +25,14 @@ public class ThresholdConfiguration {
     @Value("${metrics.driftAnalysis.name}")
     private String driftAnalysisName;
     
+    @Value("${x-matters.creationFailure}")
+    private String xMattersCreationFailureURL;
+    @Value("${metrics.creationFailure.name}")
+    private String creationFailureName;
+    @Value("${metrics.creationFailure.threshold}")
+    private double creationFailureThreshold;
+    
+    
     public String getXMattersAllocationURL() {
 		return xMattersAllocationURL;
 	}
@@ -56,6 +64,20 @@ public class ThresholdConfiguration {
     public String getDriftAnalysisName() {
   		return driftAnalysisName;
   	}
+    
+    public String getXMattersCreationFailureURL() {
+		return xMattersCreationFailureURL;
+	}
+    
+    public String getCreationFailureName() {
+  		return creationFailureName;
+  	}
+    
+    public double getCreationFailureThreshold() {
+  		return creationFailureThreshold;
+  	}
+	
+    
 	
 	
 }
