@@ -20,11 +20,13 @@ public class ThresholdConfiguration {
     @Value("${metrics.pickDecline.threshold}")
     private double pickDeclineThreshold;
     
+
     @Value("${x-matters.driftAnalysis}")
     private String xMattersDriftAnalysisURL;
     @Value("${metrics.driftAnalysis.name}")
     private String driftAnalysisName;
     
+
     @Value("${x-matters.creationFailure}")
     private String xMattersCreationFailureURL;
     @Value("${metrics.creationFailure.name}")

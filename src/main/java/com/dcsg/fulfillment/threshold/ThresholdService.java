@@ -56,6 +56,7 @@ public class ThresholdService {
     
     public double getPickDeclineFailures() throws IOException {
 		return repo.getPickDeclineFailures();
+
 	}
     
     public List<List<String>> getDriftAnalysis() throws IOException {
@@ -66,7 +67,6 @@ public class ThresholdService {
     	return repo.getCreationFailures();
     }
  
-    
 	public boolean surpassesAllocationThreshold(double allocationFailures, double allocationThreshold){
 		return allocationFailures >= allocationThreshold;
 	} 
@@ -85,6 +85,7 @@ public class ThresholdService {
 				  "\"properties\": {" +
 				    "\"" + metricName + "\": \"" + metric + "\"" +
 				  "}}";
+		System.out.println(data);
 		return data;
 	}
 	
@@ -164,8 +165,6 @@ private int sendDriftAnalysisToXMatters(String metricName, List<List<String>> dr
 		if(thresholdSurpassed) 
 			sendToXMatters(config.getCreationFailureName(), creationFailures, config.getXMattersCreationFailureURL());
 	}
-	
-	
 	
 			
 }

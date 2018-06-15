@@ -43,9 +43,9 @@ public class ThresholdRepository {
 	public Double getAllocationFailures() throws IOException {
 		
 		Double allocationFailures = 0.0;
-		
+
 		loadQuery("AllocationFailureQuery");
-		
+
 		try {
 			allocationFailures = jdbcTemplate.queryForObject(queries.get("AllocationFailureQuery"), Double.class);
 		} catch (EmptyResultDataAccessException e) {}
@@ -102,9 +102,5 @@ public class ThresholdRepository {
 		} catch (EmptyResultDataAccessException e) {}
 		return creationFailures;
 	}
-	
-	
-	
-	
-	
+
 }
