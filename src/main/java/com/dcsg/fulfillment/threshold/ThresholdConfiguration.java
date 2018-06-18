@@ -2,22 +2,24 @@ package com.dcsg.fulfillment.threshold;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Configuration
 @Component
 public class ThresholdConfiguration {
-
-	@Value("${x-matters.allocation}")
+	@Value("${x-mattersCredentials.username}")
+    private String xMattersUsername;
+    @Value("${x-mattersCredentials.password}")
+    private String xMattersPassword;
+    
+	@Value("${x-mattersUrl.allocation}")
     private String xMattersAllocationURL;
     @Value("${metrics.allocation.name}")
     private String allocationName;
     @Value("${metrics.allocation.threshold}")
     private double allocationThreshold;
     
-    @Value("${x-matters.pickDecline}")
+    @Value("${x-mattersUrl.pickDecline}")
     private String xMattersPickDeclineURL;
     @Value("${metrics.pickDecline.name}")
     private String pickDeclineName;
@@ -25,20 +27,25 @@ public class ThresholdConfiguration {
     private double pickDeclineThreshold;
     
 
-    @Value("${x-matters.driftAnalysis}")
+    @Value("${x-mattersUrl.driftAnalysis}")
     private String xMattersDriftAnalysisURL;
     @Value("${metrics.driftAnalysis.name}")
     private String driftAnalysisName;
     
 
-    @Value("${x-matters.creationFailure}")
+    @Value("${x-mattersUrl.creationFailure}")
     private String xMattersCreationFailureURL;
     @Value("${metrics.creationFailure.name}")
     private String creationFailureName;
     @Value("${metrics.creationFailure.threshold}")
     private double creationFailureThreshold;
     
-    
+    public String getXMattersUsername() {
+    	return xMattersUsername;
+    }
+    public String getXMattersPassword() {
+    	return xMattersPassword;
+    }
     public String getXMattersAllocationURL() {
 		return xMattersAllocationURL;
 	}
@@ -82,16 +89,5 @@ public class ThresholdConfiguration {
     public double getCreationFailureThreshold() {
   		return creationFailureThreshold;
   	}
-	
-    public void printAllocationURL() {
-    	System.out.println("============================================");
-		System.out.format("My secret variable is: %s\n", xMattersAllocationURL);
-		System.out.format("My secret variable is: %s\n", xMattersPickDeclineURL);
-		System.out.format("My secret variable is: %s\n", xMattersDriftAnalysisURL);
-		System.out.format("My secret variable is: %s\n", xMattersCreationFailureURL);
-		System.out.println("============================================");
-    }
-    
-	
-	
+
 }

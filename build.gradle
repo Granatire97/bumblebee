@@ -12,6 +12,11 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
+eclipse {
+    project {
+        name = 'Operation_Bumblebee'
+    }
+}
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
@@ -23,6 +28,9 @@ repositories {
 	mavenCentral()
 }
 
+bootJar {
+    launchScript()
+}
 
 dependencies {
 	compile("org.springframework.boot:spring-boot-starter-jdbc")

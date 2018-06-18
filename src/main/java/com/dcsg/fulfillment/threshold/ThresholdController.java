@@ -19,7 +19,7 @@ public class ThresholdController {
 		
 		Double allocationFailures = thresholdService.getAllocationFailures();
 		Double allocationThreshold = thresholdConfig.getAllocationThreshold();
-		String priority = thresholdService.surpassesAllocationThreshold(allocationFailures, allocationThreshold) ? "BAD":"GOOD";
+		String priority = thresholdService.surpassesMetricThreshold(allocationFailures, allocationThreshold) ? "BAD":"GOOD";
 		HashMap<String, String> response = new HashMap<String, String>();
 		response.put("priority", priority);
 		response.put("Failure Percentage", allocationFailures.toString());

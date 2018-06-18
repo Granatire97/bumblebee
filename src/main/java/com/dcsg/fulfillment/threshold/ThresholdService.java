@@ -3,12 +3,15 @@ package com.dcsg.fulfillment.threshold;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.http.HttpResponse; 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,7 +23,7 @@ public class ThresholdService {
 	private @Autowired ThresholdRepository repo;
 	private @Autowired ThresholdConfiguration config;	
 	
-	public String makeHTMLTable(List<List<String>> driftAnalysisData) throws IOException {
+	public String makeHTMLTable(List<List<String>> driftAnalysisData) {
 		String driftSendToXMatters;
 		
 		StringBuilder driftAnalysisTable = new StringBuilder();
@@ -66,71 +69,65 @@ public class ThresholdService {
     	return repo.getCreationFailures();
     }
  
-	public boolean surpassesAllocationThreshold(double allocationFailures, double allocationThreshold){
-		return allocationFailures >= allocationThreshold;
-	} 
-	
-	public boolean surpassesPickDeclineThreshold(double pickDeclineFailures, double pickDeclineThreshold){
-		return pickDeclineFailures >= pickDeclineThreshold;
-	} 
-	
-	public boolean supassesCreationFailureThreshold(double creationFailures, double creationFailureThreshold) {
-		return creationFailures >= creationFailureThreshold;
+	public boolean surpassesMetricThreshold(double metricFailures, double metricThreshold){
+		return metricFailures >= metricThreshold;
 	}
 	
 	
-	private String makeDataString(String metricName, double metric) {
+	private <T> String makeDataString(String metricName, T metric) {
 		String data = "{" +
 				  "\"properties\": {" +
 				    "\"" + metricName + "\": \"" + metric + "\"" +
 				  "}}";
-		System.out.println(data);
 		return data;
 	}
 	
 	private String makeDriftAnalysisString(String metricName, List<List<String>> dataFromQuery) throws IOException {
 		String driftAnalysisAsTable = makeHTMLTable(dataFromQuery);
-		String data = "{" +
-				  "\"properties\": {" +
-				    "\"" + metricName + "\": \"" + driftAnalysisAsTable + "\"" +
-				  "}}";
+		String data = makeDataString(metricName, driftAnalysisAsTable);
 		return data;
 	}
 	
-	private int sendToXMatters(String metricName, double metric, String url_name) {
+	private void sendToXMatters(String metricName, double metric, String url_name) throws ClientProtocolException, IOException {
 		
 		String payload = makeDataString(metricName, metric);
         StringEntity entity = new StringEntity(payload,
                 ContentType.APPLICATION_JSON);
-
-        HttpClient httpClient = HttpClientBuilder.create().build();
-        HttpPost request = new HttpPost(url_name);
-        request.setEntity(entity);     
         
-        HttpResponse response;
-		try {
-			response = httpClient.execute(request);
-			return response.getStatusLine().getStatusCode();
-		} catch (IOException e) {}   
-        return -1;
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials
+         = new UsernamePasswordCredentials(config.getXMattersUsername(), config.getXMattersPassword());
+        provider.setCredentials(AuthScope.ANY, credentials);
+          
+        HttpClient client = HttpClientBuilder.create()
+          .setDefaultCredentialsProvider(provider)
+          .build();
+        
+        HttpPost request = new HttpPost(url_name);
+        request.setEntity(entity);
+        
+        client.execute(request);
 	}
 	
-private int sendDriftAnalysisToXMatters(String metricName, List<List<String>> driftData, String url_name) throws IOException {
+	private void sendDriftAnalysisToXMatters(String metricName, List<List<String>> driftData, String url_name) throws IOException {
 		
 		String payload = makeDriftAnalysisString(metricName, driftData);
         StringEntity entity = new StringEntity(payload,
                 ContentType.APPLICATION_JSON);
 
-        HttpClient httpClient = HttpClientBuilder.create().build();
-        HttpPost request = new HttpPost(url_name);
-        request.setEntity(entity);     
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials
+         = new UsernamePasswordCredentials(config.getXMattersUsername(), config.getXMattersPassword());
+        provider.setCredentials(AuthScope.ANY, credentials);
+          
+        HttpClient client = HttpClientBuilder.create()
+          .setDefaultCredentialsProvider(provider)
+          .build();
         
-        HttpResponse response;
-		try {
-			response = httpClient.execute(request);
-			return response.getStatusLine().getStatusCode();
-		} catch (IOException e) {}   
-        return -1;
+        HttpPost request = new HttpPost(url_name);
+        request.setEntity(entity);
+        
+        client.execute(request);
 	}
 	
 	
@@ -138,7 +135,7 @@ private int sendDriftAnalysisToXMatters(String metricName, List<List<String>> dr
 	@Scheduled(fixedRate = 3600000)
 	private void monitorAllocationFailures() throws IOException {
 		double allocationFailures = getAllocationFailures();
-		boolean thresholdSurpassed = surpassesAllocationThreshold(allocationFailures, config.getAllocationThreshold());
+		boolean thresholdSurpassed = surpassesMetricThreshold(allocationFailures, config.getAllocationThreshold());
 		if (thresholdSurpassed)
 			sendToXMatters(config.getAllocationName(), allocationFailures, config.getXMattersAllocationURL());
 	}
@@ -146,12 +143,12 @@ private int sendDriftAnalysisToXMatters(String metricName, List<List<String>> dr
 	@Scheduled(fixedRate = 3600000)
 	private void monitorPickDeclineFailures() throws IOException {
 		double pickDeclineFailures = getPickDeclineFailures();
-		boolean thresholdSurpassed = surpassesPickDeclineThreshold(pickDeclineFailures, config.getPickDeclineThreshold());
+		boolean thresholdSurpassed = surpassesMetricThreshold(pickDeclineFailures, config.getPickDeclineThreshold());
 		if(thresholdSurpassed) 
 			sendToXMatters(config.getPickDeclineName(), pickDeclineFailures, config.getXMattersPickDeclineURL());
 	}
 	
-	@Scheduled(fixedRate = 3600000) // cron = "0 0 8/3 ? * * "
+	@Scheduled(cron = "0 0 8/3 ? * * ")
 	private void monitorDriftAnalysis() throws IOException {
 		List<List<String>> driftAnalysis = getDriftAnalysis();
 		sendDriftAnalysisToXMatters(config.getDriftAnalysisName(), driftAnalysis, config.getXMattersDriftAnalysisURL());
@@ -160,11 +157,9 @@ private int sendDriftAnalysisToXMatters(String metricName, List<List<String>> dr
 	@Scheduled(fixedRate = 3600000)
 	private void monitorCreationFailures() throws IOException {
 		double creationFailures = getCreationFailure();
-		boolean thresholdSurpassed = supassesCreationFailureThreshold(creationFailures, config.getCreationFailureThreshold());
+		boolean thresholdSurpassed = surpassesMetricThreshold(creationFailures, config.getCreationFailureThreshold());
 		if(thresholdSurpassed) 
 			sendToXMatters(config.getCreationFailureName(), creationFailures, config.getXMattersCreationFailureURL());
-		
-		config.printAllocationURL();
 	}
 	
 			
