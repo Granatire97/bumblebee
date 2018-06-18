@@ -2,8 +2,12 @@ package com.dcsg.fulfillment.threshold;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 @Configuration
+@Component
 public class ThresholdConfiguration {
 
 	@Value("${x-matters.allocation}")
@@ -79,6 +83,14 @@ public class ThresholdConfiguration {
   		return creationFailureThreshold;
   	}
 	
+    public void printAllocationURL() {
+    	System.out.println("============================================");
+		System.out.format("My secret variable is: %s\n", xMattersAllocationURL);
+		System.out.format("My secret variable is: %s\n", xMattersPickDeclineURL);
+		System.out.format("My secret variable is: %s\n", xMattersDriftAnalysisURL);
+		System.out.format("My secret variable is: %s\n", xMattersCreationFailureURL);
+		System.out.println("============================================");
+    }
     
 	
 	

@@ -34,4 +34,5 @@ dependencies {
     compile files("libs/ojdbc7.jar")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	compile group: 'org.projectlombok', name: 'lombok-maven', version: '1.16.22.0'
+	compile('com.github.ulisesbocchio:jasypt-spring-boot-starter:1.18')
 }

@@ -18,8 +18,7 @@ import org.springframework.stereotype.Service;
 public class ThresholdService {
     
 	private @Autowired ThresholdRepository repo;
-	private @Autowired ThresholdConfiguration config;
-	
+	private @Autowired ThresholdConfiguration config;	
 	
 	public String makeHTMLTable(List<List<String>> driftAnalysisData) throws IOException {
 		String driftSendToXMatters;
@@ -152,7 +151,7 @@ private int sendDriftAnalysisToXMatters(String metricName, List<List<String>> dr
 			sendToXMatters(config.getPickDeclineName(), pickDeclineFailures, config.getXMattersPickDeclineURL());
 	}
 	
-	@Scheduled(cron = "0 0 8/3 ? * * ")
+	@Scheduled(fixedRate = 3600000) // cron = "0 0 8/3 ? * * "
 	private void monitorDriftAnalysis() throws IOException {
 		List<List<String>> driftAnalysis = getDriftAnalysis();
 		sendDriftAnalysisToXMatters(config.getDriftAnalysisName(), driftAnalysis, config.getXMattersDriftAnalysisURL());
@@ -164,6 +163,8 @@ private int sendDriftAnalysisToXMatters(String metricName, List<List<String>> dr
 		boolean thresholdSurpassed = supassesCreationFailureThreshold(creationFailures, config.getCreationFailureThreshold());
 		if(thresholdSurpassed) 
 			sendToXMatters(config.getCreationFailureName(), creationFailures, config.getXMattersCreationFailureURL());
+		
+		config.printAllocationURL();
 	}
 	
 			

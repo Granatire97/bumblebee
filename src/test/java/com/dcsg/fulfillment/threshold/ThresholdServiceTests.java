@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.junit.runner.RunWith;
+import org.omg.CORBA.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -68,7 +69,6 @@ public class ThresholdServiceTests {
 		String dataString = (String) makeDataString.invoke(new ThresholdService(),"", 0.5);
 		assertEquals("{\"properties\": {\"\": \"0.5\"}}", dataString);
 	}
-	
-	
+
 	
 }
