@@ -132,7 +132,7 @@ public class ThresholdService {
 	
 	
 	
-	@Scheduled(fixedRate = 3600000)
+	@Scheduled(cron = "0 0 8/1 ? * * ")
 	private void monitorAllocationFailures() throws IOException {
 		double allocationFailures = getAllocationFailures();
 		boolean thresholdSurpassed = surpassesMetricThreshold(allocationFailures, config.getAllocationThreshold());
@@ -140,7 +140,7 @@ public class ThresholdService {
 			sendToXMatters(config.getAllocationName(), allocationFailures, config.getXMattersAllocationURL());
 	}
 	
-	@Scheduled(fixedRate = 3600000)
+	@Scheduled(cron = "0 0 8/1 ? * * ")
 	private void monitorPickDeclineFailures() throws IOException {
 		double pickDeclineFailures = getPickDeclineFailures();
 		boolean thresholdSurpassed = surpassesMetricThreshold(pickDeclineFailures, config.getPickDeclineThreshold());
@@ -154,7 +154,7 @@ public class ThresholdService {
 		sendDriftAnalysisToXMatters(config.getDriftAnalysisName(), driftAnalysis, config.getXMattersDriftAnalysisURL());
 	}
 	
-	@Scheduled(fixedRate = 3600000)
+	@Scheduled(cron = "0 0 8/1 ? * * ")
 	private void monitorCreationFailures() throws IOException {
 		double creationFailures = getCreationFailure();
 		boolean thresholdSurpassed = surpassesMetricThreshold(creationFailures, config.getCreationFailureThreshold());
