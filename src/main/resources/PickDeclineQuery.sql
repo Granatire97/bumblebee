@@ -4,7 +4,7 @@ from
   order_line_item oli
   join orders o on o.order_id = oli.order_id
   Join Purchase_Orders Po On Po.Purchase_Orders_Id = O.Purchase_Order_Id
-  join facility f on f.facility_id = o.o_facility_id --and f.facility_type_bits = 64 --only look for stores
+  join facility f on f.facility_id = o.o_facility_id and f.facility_type_bits = 64 --only look for stores
 Where
   Oli.Created_Dttm >= Trunc(Sysdate)-10 --only view today's order lines
   And O.Dsg_Ship_Via <> 'BOPS' --remove bopis from this %

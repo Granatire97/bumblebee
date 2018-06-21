@@ -21,7 +21,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 group = 'com.dcsg'
-version = '0.0.1-SNAPSHOT'
+version = '1.1'
 sourceCompatibility = 1.8
 
 repositories {
@@ -29,7 +29,7 @@ repositories {
 }
 
 bootJar {
-    launchScript()
+    baseName = 'operation_bumblebee'
 }
 
 dependencies {
