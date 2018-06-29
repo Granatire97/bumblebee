@@ -6,7 +6,7 @@ from
   Join Purchase_Orders Po On Po.Purchase_Orders_Id = O.Purchase_Order_Id
   join facility f on f.facility_id = o.o_facility_id and f.facility_type_bits = 64 --only look for stores
 Where
-  Oli.Created_Dttm >= Trunc(Sysdate)-10 --only view today's order lines
+  Oli.last_updated_dttm >= Trunc(Sysdate) --only view lines actioned today
   And O.Dsg_Ship_Via <> 'BOPS' --remove bopis from this %
   And O.Do_Status >= 190 --DOs are shipped or canceled
   and exists --makes sure we are only tracking the parent line
