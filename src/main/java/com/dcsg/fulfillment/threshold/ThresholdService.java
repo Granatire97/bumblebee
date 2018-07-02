@@ -148,7 +148,7 @@ public class ThresholdService {
 			sendToXMatters(config.getPickDeclineName(), pickDeclineFailures, config.getXMattersPickDeclineURL());
 	}
 	
-	@Scheduled(cron = "0 0 8/3 ? * * ")
+	@Scheduled(cron = "0 0 8,17 ? * *")
 	private void monitorDriftAnalysis() throws IOException {
 		List<List<String>> driftAnalysis = getDriftAnalysis();
 		sendDriftAnalysisToXMatters(config.getDriftAnalysisName(), driftAnalysis, config.getXMattersDriftAnalysisURL());
