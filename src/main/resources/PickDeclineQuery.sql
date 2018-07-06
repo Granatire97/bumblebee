@@ -8,7 +8,7 @@ from
 Where
   Oli.last_updated_dttm >= Trunc(Sysdate) --only view lines actioned today
   And O.Dsg_Ship_Via <> 'BOPS' --remove bopis from this %
-  And O.Do_Status >= 190 --DOs are shipped or canceled
+  And O.Do_Status >= 170 --DOs are shipped or canceled
   and exists --makes sure we are only tracking the parent line
      (select null from purchase_orders_line_item poli
         where oli.mo_line_item_id = poli.purchase_orders_line_item_id
