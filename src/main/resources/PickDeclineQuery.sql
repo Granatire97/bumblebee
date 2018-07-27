@@ -1,5 +1,5 @@
 Select /*+ parallel */
-((sum(oli.orig_order_qty)-(sum(oli.order_qty)))/sum(oli.orig_order_qty)) *100 as decline_percent
+trunc (((sum(oli.orig_order_qty)-(sum(oli.order_qty)))/sum(oli.orig_order_qty)) *100, 2) as decline_percent
 from
   order_line_item oli
   join orders o on o.order_id = oli.order_id

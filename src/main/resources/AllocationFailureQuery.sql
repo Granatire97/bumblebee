@@ -1,5 +1,5 @@
 select
-(a.ordercount/c.ordercount)*100
+trunc ((a.ordercount/c.ordercount)*100, 2)
 from
 (
 --Allocation failures, first pass

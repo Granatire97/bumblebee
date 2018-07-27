@@ -2,7 +2,7 @@ SELECT /*+ parallel */
 --po.purchase_orders_date_dttm
 --,SYSDATE
 --,tc_purchase_orders_id
-NVL(AVG(cast(sysdate AS DATE) - cast(po.purchase_orders_date_dttm AS DATE))*24*60,0) AS calc
+trunc (NVL(AVG(cast(sysdate AS DATE) - cast(po.purchase_orders_date_dttm AS DATE))*24*60,0), 2) AS calc
 FROM
 purchase_orders po 
 WHERE
