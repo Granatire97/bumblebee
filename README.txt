@@ -1,4 +1,4 @@
-# Threshold Alert Service
+# Threshold Alert Service (AKA Bumblebee)
 
 A service that texts users when certain metrics cross thresholds for the DCSG Fulfillment Team.
 
